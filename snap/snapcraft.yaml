@@ -1,0 +1,71 @@
+name: rockpi-n10-kernel
+adopt-info: kernel
+summary: Single-line elevator pitch for your amazing snap # 79 char long summary
+description: |
+  This is my-snap's description. You have a paragraph or two to tell the
+  most important story about your snap. Keep it under 100 words though,
+  we live in tweetspace and your description wants to look good in the snap
+  store.
+
+grade: stable
+confinement: strict
+type: kernel
+build-base: core18
+
+architectures:
+  - build-on: amd64
+    run-on: arm64
+
+parts:
+  firmware:
+    plugin: nil
+    source: git://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git
+    source-depth: 1
+    override-build: |
+      mkdir -p $SNAPCRAFT_PART_INSTALL/firmware
+      cp -av ./* $SNAPCRAFT_PART_INSTALL/firmware/ 
+  toolchain:
+    plugin: nil
+    override-build: |
+      TCHAINVER="$(wget -q -O - \
+                 https://releases.linaro.org/components/toolchain/binaries/latest-7/aarch64-linux-gnu/| \
+                 html2text -width 200|grep 'x86_64_aarch64-linux-gnu.tar.xz '|cut -d' ' -f2)"
+      wget https://releases.linaro.org/components/toolchain/binaries/latest-7/aarch64-linux-gnu/$TCHAINVER
+      tar xf $TCHAINVER
+      mv $(echo $TCHAINVER|sed 's/.tar.xz$//') $SNAPCRAFT_PART_INSTALL/toolchain
+    build-packages:
+      - html2text
+      - wget
+    prime:
+      - -toolchain
+    after: [ firmware ]
+  kernel:
+    plugin: kernel
+    source: https://github.com/radxa/kernel.git
+    source-depth: 1
+    source-branch: rk3399pro-toybrick-stable
+    kdefconfig: [ rockchip_linux_defconfig, snappy/generic.config, snappy/security.config, snappy/systemd.config, snappy/snappy.config, snappy/containers.config ]
+    kernel-image-target: Image
+    kernel-initrd-core-base: core20
+    override-pull: |
+      snapcraftctl pull
+      set -e
+      echo "applying snappy configs patches"
+      git apply -v ../../../patches/configs.patch
+      git apply -v ../../../patches/apparmor.patch
+    override-build: |
+      apt purge -y binutils-aarch64-linux-gnu cpp-9-aarch64-linux-gnu \
+        cpp-aarch64-linux-gnu gcc-9-aarch64-linux-gnu \
+        gcc-9-aarch64-linux-gnu-base gcc-aarch64-linux-gnu
+      for file in ${SNAPCRAFT_STAGE}/toolchain/bin/*; do
+        ln -sf $file /usr/local/bin/$(basename $file)
+      done
+      ln -sf ${SNAPCRAFT_STAGE}/toolchain/aarch64-linux-gnu/bin /usr/aarch64-linux-gnu/
+      snapcraftctl build
+      rm -rf /usr/local/bin/aarch64-linux-gnu-*
+      rm -rf /usr/aarch64-linux-gnu/bin
+      snapcraftctl set-version "$(git tag)"
+    build-packages:
+      - libssl-dev
+      - u-boot-tools
+    after: [ toolchain ]
