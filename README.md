@@ -1,6 +1,6 @@
 # rockpi-n10-kernel
 
-Ubuntu Core 20 kernel snap for the RockPi N10 found at https://github.com/radxa/kernel.git 
+Ubuntu Core 20 kernel snap for the RockPi N10 (https://wiki.radxa.com/RockpiN10) found at https://github.com/radxa/kernel.git 
 in the rk3399pro-toybrick-stable branch using the rockchip_linux_defconfig configuration.
 
 The build applies the apparmor 4.4 patch set from:
