@@ -68,4 +68,5 @@ parts:
     build-packages:
       - libssl-dev
       - u-boot-tools
+      - python-is-python3
     after: [ toolchain ]
