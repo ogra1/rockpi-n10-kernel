@@ -42,6 +42,8 @@ This snap is designed for cross building, run the instructions below on a PC
 
     ```
     $ lxc file pull focal/root/rockpi-n10-kernel/rockpi-n10-kernel_4.4.167-16-rockchip_arm64.snap .
+    $ ls -lh rockpi-n10-kernel_4.4.167-16-rockchip_arm64.snap 
+    -rw-r--r-- 1 ogra ogra 365M Feb  5 18:41 rockpi-n10-kernel_4.4.167-16-rockchip_arm64.snap
     $
     ```
 
