@@ -57,8 +57,6 @@ parts:
       apt purge -y binutils-aarch64-linux-gnu cpp-9-aarch64-linux-gnu \
         cpp-aarch64-linux-gnu gcc-9-aarch64-linux-gnu \
         gcc-9-aarch64-linux-gnu-base gcc-aarch64-linux-gnu
-      rm -rf /usr/local/bin/aarch64-linux-gnu-*
-      rm -rf /usr/aarch64-linux-gnu/bin
       for file in ${SNAPCRAFT_STAGE}/toolchain/bin/*; do
         ln -sf $file /usr/local/bin/$(basename $file)
       done
